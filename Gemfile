@@ -3,4 +3,4 @@
 source 'https://rubygems.org'
 
 gem 'pry'
-gem 'hcl-checker', '>= 1.0.6'
+gem 'hcl-checker', git: 'git@github.com:bmalinconico/hcl-checker.git'
