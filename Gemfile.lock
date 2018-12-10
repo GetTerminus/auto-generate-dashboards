@@ -1,0 +1,25 @@
+GIT
+  remote: git@github.com:bmalinconico/hcl-checker.git
+  revision: 867174d100cf08c724e94e62c54600da3c808a46
+  specs:
+    hcl-checker (1.0.5)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    coderay (1.1.2)
+    method_source (0.9.0)
+    pry (0.11.3)
+      coderay (~> 1.1.0)
+      method_source (~> 0.9.0)
+
+PLATFORMS
+  ruby
+  x86_64-darwin-17
+
+DEPENDENCIES
+  hcl-checker!
+  pry
+
+BUNDLED WITH
+   1.16.1

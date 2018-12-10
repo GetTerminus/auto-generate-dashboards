@@ -1,0 +1,144 @@
+# This file is generated automatically.
+# Manual edits will not be preserved
+
+resource "datadog_timeboard" "<%= convox_app.gsub(/[^a-zA-Z]/,'-') %>-sqs-overview" {
+  title       = "<%= convox_app %> - SQS Overview"
+  description = "<%= convox_app %> - SQS Overview"
+  read_only   = true
+
+<% domain_events.sort_by(&:first).each do |(event_name, event_config)| %>
+  graph {
+    title = "<%=event_name %> Read / Write"
+    viz   = "timeseries"
+    precision = 0
+
+    request {
+      q = "sum:aws.sqs.number_of_messages_sent{queuename:${module.<%=event_name %>.sqs_queue_name}}.as_count()"
+      aggregator = "sum"
+    }
+
+    request {
+      q = "sum:aws.sqs.number_of_messages_deleted{queuename:${module.<%=event_name %>.sqs_queue_name}}.as_count()"
+      aggregator = "sum"
+    }
+  }
+
+  graph {
+    title     = "<%=event_name %> Message Age"
+    viz       = "query_value"
+    autoscale = true
+    precision = 0
+
+    request {
+      q = "max:aws.sqs.approximate_age_of_oldest_message{queuename:${module.<%=event_name %>.sqs_queue_name}}.as_count()"
+      aggregator = "last"
+
+      conditional_format {
+        comparator = "<"
+        value = 300
+        palette = "white_on_green"
+      }
+
+      conditional_format {
+        comparator = ">"
+        value = 299
+        palette = "white_on_yellow"
+      }
+      conditional_format {
+        comparator = ">"
+        value = 600
+        palette = "white_on_red"
+      }
+    }
+
+  }
+
+  graph {
+    title = "<%=event_name %> Dead Letter Queue Size"
+    viz   = "timeseries"
+    precision = 0
+
+    request {
+      q = "sum:aws.sqs.approximate_number_of_messages_visible{queuename:${module.<%=event_name %>.sqs_dead_letter_queue_name}}.as_count()"
+      aggregator = "sum"
+    }
+  }
+
+  graph {
+    title     = "<%=event_name %> Dead Letter Message Age"
+    viz       = "query_value"
+    autoscale = true
+    precision = 0
+
+    request {
+      q = "max:aws.sqs.approximate_age_of_oldest_message{queuename:${module.<%=event_name %>.sqs_dead_letter_queue_name}}.as_count()"
+      aggregator = "last"
+
+      conditional_format {
+        comparator = "<"
+        value = 1
+        palette = "white_on_green"
+      }
+
+      conditional_format {
+        comparator = ">"
+        value = 1
+        palette = "white_on_yellow"
+      }
+      conditional_format {
+        comparator = ">"
+        value = 3
+        palette = "white_on_red"
+      }
+    }
+
+  }
+<% end %>
+
+<% sqs_queues.each do |queue_name, queue_config| %>
+  graph {
+    title = "<%=queue_name %> Read / Write"
+    viz   = "timeseries"
+    precision = 0
+
+    request {
+      q = "sum:aws.sqs.number_of_messages_sent{queuename:<%= queue_config["name"] %>}.as_count()"
+      aggregator = "sum"
+    }
+
+    request {
+      q = "sum:aws.sqs.number_of_messages_deleted{queuename:<%= queue_config["name"] %>}.as_count()"
+      aggregator = "sum"
+    }
+  }
+
+  graph {
+    title     = "<%=queue_name %> Message Age"
+    viz       = "query_value"
+    autoscale = true
+    precision = 0
+
+    request {
+      q = "max:aws.sqs.approximate_age_of_oldest_message{queuename:<%= queue_config["name"] %>}.as_count()"
+      aggregator = "last"
+
+      conditional_format {
+        comparator = "<"
+        value = 1
+        palette = "white_on_green"
+      }
+
+      conditional_format {
+        comparator = ">"
+        value = 1
+        palette = "white_on_yellow"
+      }
+      conditional_format {
+        comparator = ">"
+        value = 3
+        palette = "white_on_red"
+      }
+    }
+  }
+<% end %>
+}

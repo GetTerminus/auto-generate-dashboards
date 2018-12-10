@@ -1,0 +1,60 @@
+# This file is generated automatically.
+# Manual edits will not be preserved
+
+resource "datadog_timeboard" "<%= convox_app.gsub(/[^a-zA-Z]/,'-') %>-dynamodb-overview" {
+  title       = "<%= convox_app %> - DynamoDB Overview"
+  description = "<%= convox_app %> - DynamoDB Overview"
+  read_only   = true
+
+<% tables.sort_by(&:first).each do |(table_name, event_config)| %>
+  graph {
+    title = "<%=table_name %> Write Status"
+    viz   = "timeseries"
+
+    request {
+      q = "max:aws.dynamodb.consumed_write_capacity_units{tablename:${module.<%=table_name %>.table_name}}.as_count()"
+      aggregator = "max"
+    }
+
+    request {
+      q = "max:aws.dynamodb.provisioned_write_capacity_units{tablename:${module.<%=table_name %>.table_name}}.as_count()"
+      aggregator = "max"
+    }
+  }
+
+  graph {
+    title = "<%=table_name %> Throttled Writes"
+    viz   = "timeseries"
+
+    request {
+      q = "max:aws.dynamodb.write_throttle_events{tablename:${module.<%=table_name %>.table_name}}.as_count()"
+      aggregator = "max"
+    }
+  }
+
+  graph {
+    title = "<%=table_name %> Read Status"
+    viz   = "timeseries"
+
+    request {
+      q = "max:aws.dynamodb.consumed_read_capacity_units{tablename:${module.<%=table_name %>.table_name}}.as_count()"
+      aggregator = "max"
+    }
+
+    request {
+      q = "max:aws.dynamodb.provisioned_read_capacity_units{tablename:${module.<%=table_name %>.table_name}}.as_count()"
+      aggregator = "max"
+    }
+  }
+
+  graph {
+    title = "<%=table_name %> Throttled Read"
+    viz   = "timeseries"
+
+    request {
+      q = "max:aws.dynamodb.read_throttle_events{tablename:${module.<%=table_name %>.table_name}}.as_count()"
+      aggregator = "max"
+    }
+  }
+<% end %>
+}
