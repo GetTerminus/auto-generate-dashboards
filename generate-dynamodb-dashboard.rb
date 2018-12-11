@@ -24,17 +24,20 @@ raise ArgumentError, 'Missing convox app name  (define with -a)' unless options[
 repo = options[:repo]
 convox_app = options[:app_name]
 
-tables = {}
+module_tables = {}
+resource_tables = {}
 
 options[:input_files].each do |file|
   config = HCL::Checker.parse(File.read(file))
   modules = config['module']
 
-  tables.merge!(modules.select do |_, config|
+  module_tables.merge!(modules.select do |_, config|
     config['source']&.include?('dynamodb')
   end)
+
+  resource_tables.merge!(config["resource"]["aws_dynamodb_table"] || {})
 end
 
-template = ERB.new(File.read(File.join(__dir__, 'templates', 'dynamodb-dashboard.erb')))
+template = ERB.new(File.read(File.join(__dir__, 'templates', 'dynamodb-dashboard.erb')), nil, '-')
 
 File.write('/tmp/generated-output.tmp', template.result(binding))

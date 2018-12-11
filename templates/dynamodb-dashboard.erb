@@ -1,12 +1,12 @@
 # This file is generated automatically.
 # Manual edits will not be preserved
 
-resource "datadog_timeboard" "<%= convox_app.gsub(/[^a-zA-Z]/,'-') %>-dynamodb-overview" {
+resource "datadog_timeboard" "<%= convox_app.gsub(/[^a-zA-Z0-9]/,'-') %>-dynamodb-overview" {
   title       = "<%= convox_app %> - DynamoDB Overview"
   description = "<%= convox_app %> - DynamoDB Overview"
   read_only   = true
 
-<% tables.sort_by(&:first).each do |(table_name, event_config)| %>
+<%- module_tables.sort_by(&:first).each do |(table_name, event_config)| -%>
   graph {
     title = "<%=table_name %> Write Status"
     viz   = "timeseries"
@@ -56,5 +56,47 @@ resource "datadog_timeboard" "<%= convox_app.gsub(/[^a-zA-Z]/,'-') %>-dynamodb-o
       aggregator = "max"
     }
   }
-<% end %>
+<%- end -%>
+<%- resource_tables.sort_by(&:first).each do |(resource_name, event_config)| -%>
+   graph {
+    title = "${aws_dynamodb_table.<%=resource_name %>.name} Write Status"
+    viz   = "timeseries"
+     request {
+      q = "max:aws.dynamodb.consumed_write_capacity_units{tablename:${aws_dynamodb_table.<%=resource_name %>.name}}.as_count()"
+      aggregator = "max"
+    }
+     request {
+      q = "max:aws.dynamodb.provisioned_write_capacity_units{tablename:${aws_dynamodb_table.<%=resource_name %>.name}}.as_count()"
+      aggregator = "max"
+    }
+  }
+   graph {
+    title = "${aws_dynamodb_table.<%=resource_name %>.name} Throttled Writes"
+    viz   = "timeseries"
+     request {
+      q = "max:aws.dynamodb.write_throttle_events{tablename:${aws_dynamodb_table.<%=resource_name %>.name}}.as_count()"
+      aggregator = "max"
+    }
+  }
+   graph {
+    title = "${aws_dynamodb_table.<%=resource_name %>.name} Read Status"
+    viz   = "timeseries"
+     request {
+      q = "max:aws.dynamodb.consumed_read_capacity_units{tablename:${aws_dynamodb_table.<%=resource_name %>.name}}.as_count()"
+      aggregator = "max"
+    }
+     request {
+      q = "max:aws.dynamodb.provisioned_read_capacity_units{tablename:${aws_dynamodb_table.<%=resource_name %>.name}}.as_count()"
+      aggregator = "max"
+    }
+  }
+   graph {
+    title = "${aws_dynamodb_table.<%=resource_name %>.name} Throttled Read"
+    viz   = "timeseries"
+     request {
+      q = "max:aws.dynamodb.read_throttle_events{tablename:${aws_dynamodb_table.<%=resource_name %>.name}}.as_count()"
+      aggregator = "max"
+    }
+  }
+<%- end -%>
 }
