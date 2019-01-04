@@ -13,12 +13,10 @@ resource "datadog_timeboard" "<%= convox_app.gsub(/[^a-zA-Z0-9]/,'-') %>-dynamod
 
     request {
       q = "max:aws.dynamodb.consumed_write_capacity_units{tablename:${module.<%=table_name %>.table_name}}.as_count()"
-      aggregator = "max"
     }
 
     request {
       q = "max:aws.dynamodb.provisioned_write_capacity_units{tablename:${module.<%=table_name %>.table_name}}.as_count()"
-      aggregator = "max"
     }
   }
 
@@ -28,7 +26,6 @@ resource "datadog_timeboard" "<%= convox_app.gsub(/[^a-zA-Z0-9]/,'-') %>-dynamod
 
     request {
       q = "max:aws.dynamodb.write_throttle_events{tablename:${module.<%=table_name %>.table_name}}.as_count()"
-      aggregator = "max"
     }
   }
 
@@ -38,12 +35,10 @@ resource "datadog_timeboard" "<%= convox_app.gsub(/[^a-zA-Z0-9]/,'-') %>-dynamod
 
     request {
       q = "max:aws.dynamodb.consumed_read_capacity_units{tablename:${module.<%=table_name %>.table_name}}.as_count()"
-      aggregator = "max"
     }
 
     request {
       q = "max:aws.dynamodb.provisioned_read_capacity_units{tablename:${module.<%=table_name %>.table_name}}.as_count()"
-      aggregator = "max"
     }
   }
 
@@ -53,7 +48,6 @@ resource "datadog_timeboard" "<%= convox_app.gsub(/[^a-zA-Z0-9]/,'-') %>-dynamod
 
     request {
       q = "max:aws.dynamodb.read_throttle_events{tablename:${module.<%=table_name %>.table_name}}.as_count()"
-      aggregator = "max"
     }
   }
 <%- end -%>
@@ -63,11 +57,9 @@ resource "datadog_timeboard" "<%= convox_app.gsub(/[^a-zA-Z0-9]/,'-') %>-dynamod
     viz   = "timeseries"
      request {
       q = "max:aws.dynamodb.consumed_write_capacity_units{tablename:${aws_dynamodb_table.<%=resource_name %>.name}}.as_count()"
-      aggregator = "max"
     }
      request {
       q = "max:aws.dynamodb.provisioned_write_capacity_units{tablename:${aws_dynamodb_table.<%=resource_name %>.name}}.as_count()"
-      aggregator = "max"
     }
   }
    graph {
@@ -75,7 +67,6 @@ resource "datadog_timeboard" "<%= convox_app.gsub(/[^a-zA-Z0-9]/,'-') %>-dynamod
     viz   = "timeseries"
      request {
       q = "max:aws.dynamodb.write_throttle_events{tablename:${aws_dynamodb_table.<%=resource_name %>.name}}.as_count()"
-      aggregator = "max"
     }
   }
    graph {
@@ -83,11 +74,9 @@ resource "datadog_timeboard" "<%= convox_app.gsub(/[^a-zA-Z0-9]/,'-') %>-dynamod
     viz   = "timeseries"
      request {
       q = "max:aws.dynamodb.consumed_read_capacity_units{tablename:${aws_dynamodb_table.<%=resource_name %>.name}}.as_count()"
-      aggregator = "max"
     }
      request {
       q = "max:aws.dynamodb.provisioned_read_capacity_units{tablename:${aws_dynamodb_table.<%=resource_name %>.name}}.as_count()"
-      aggregator = "max"
     }
   }
    graph {
@@ -95,7 +84,6 @@ resource "datadog_timeboard" "<%= convox_app.gsub(/[^a-zA-Z0-9]/,'-') %>-dynamod
     viz   = "timeseries"
      request {
       q = "max:aws.dynamodb.read_throttle_events{tablename:${aws_dynamodb_table.<%=resource_name %>.name}}.as_count()"
-      aggregator = "max"
     }
   }
 <%- end -%>

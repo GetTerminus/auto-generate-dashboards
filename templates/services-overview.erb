@@ -10,89 +10,69 @@ resource "datadog_timeboard" "<%= convox_app.gsub(/[^a-zA-Z]/,'-') %>-service-ov
   graph {
     title = "<%=service_name %> Memory In Use"
     viz   = "timeseries"
-    precision = 0
 
     request {
       q = "max:docker.mem.in_use{task_name:${var.convox_created_resource_name_prefix}-<%= convox_app %>-<%=service_name %>} by {container_name}*100"
-      aggregator = "max"
     }
   }
 <% if service_config["ports"]&.length.to_i > 0 %>
   graph {
     title = "<%=service_name %> Host Health"
     viz   = "timeseries"
-    precision = 0
 
     request {
       q = "min:aws.elb.healthy_host_count.minimum{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}"
-      aggregator = "min"
     }
 
     request {
       q = "max:aws.elb.un_healthy_host_count.maximum{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}"
-      aggregator = "max"
     }
   }
 
   graph {
     title = "<%=service_name %> Surge Queue Length"
     viz   = "timeseries"
-    precision = 0
 
     request {
       q = "max:aws.elb.surge_queue_length{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}"
-      aggregator = "min"
     }
   }
 <% if (service_config["labels"] || []).any?{|l| l.match?(/=https?\z/) } %>
   graph {
     title = "<%=service_name %> HTTP Response Codes"
     viz   = "timeseries"
-    precision = 0
 
     request {
       q = "sum:aws.elb.httpcode_backend_2xx{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}.as_count()"
-      aggregator = "sum"
-      type = "bars"
     }
 
     request {
       q = "sum:aws.elb.httpcode_backend_3xx{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}.as_count()"
-      aggregator = "sum"
-      type = "bars"
     }
 
     request {
       q = "sum:aws.elb.httpcode_backend_4xx{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}.as_count()"
-      aggregator = "sum"
-      type = "bars"
     }
 
     request {
       q = "sum:aws.elb.httpcode_backend_5xx{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}.as_count()"
-      aggregator = "sum"
-      type = "bars"
     }
   }
 
   graph {
     title = "<%=service_name %> Latency"
     viz   = "timeseries"
-    precision = 0
 
     request {
       q = "max:aws.elb.latency.maximum{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}.as_count()"
-      aggregator = "max"
     }
 
     request {
       q = "max:aws.elb.latency.p99{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}.as_count()"
-      aggregator = "max"
     }
 
     request {
       q = "max:aws.elb.latency.p95{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}.as_count()"
-      aggregator = "max"
     }
   }
 <% end %>

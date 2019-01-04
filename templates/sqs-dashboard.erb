@@ -10,16 +10,13 @@ resource "datadog_timeboard" "<%= convox_app.gsub(/[^a-zA-Z]/,'-') %>-sqs-overvi
   graph {
     title = "<%=event_name %> Read / Write"
     viz   = "timeseries"
-    precision = 0
 
     request {
       q = "sum:aws.sqs.number_of_messages_sent{queuename:${module.<%=event_name %>.sqs_queue_name}}.as_count()"
-      aggregator = "sum"
     }
 
     request {
       q = "sum:aws.sqs.number_of_messages_deleted{queuename:${module.<%=event_name %>.sqs_queue_name}}.as_count()"
-      aggregator = "sum"
     }
   }
 
@@ -27,26 +24,24 @@ resource "datadog_timeboard" "<%= convox_app.gsub(/[^a-zA-Z]/,'-') %>-sqs-overvi
     title     = "<%=event_name %> Message Age"
     viz       = "query_value"
     autoscale = true
-    precision = 0
 
     request {
       q = "max:aws.sqs.approximate_age_of_oldest_message{queuename:${module.<%=event_name %>.sqs_queue_name}}.as_count()"
-      aggregator = "last"
 
       conditional_format {
         comparator = "<"
-        value = 300
+        value = 300.0
         palette = "white_on_green"
       }
 
       conditional_format {
         comparator = ">"
-        value = 299
+        value = 299.0
         palette = "white_on_yellow"
       }
       conditional_format {
         comparator = ">"
-        value = 600
+        value = 600.0
         palette = "white_on_red"
       }
     }
@@ -56,11 +51,9 @@ resource "datadog_timeboard" "<%= convox_app.gsub(/[^a-zA-Z]/,'-') %>-sqs-overvi
   graph {
     title = "<%=event_name %> Dead Letter Queue Size"
     viz   = "timeseries"
-    precision = 0
 
     request {
       q = "sum:aws.sqs.approximate_number_of_messages_visible{queuename:${module.<%=event_name %>.sqs_dead_letter_queue_name}}.as_count()"
-      aggregator = "sum"
     }
   }
 
@@ -68,26 +61,24 @@ resource "datadog_timeboard" "<%= convox_app.gsub(/[^a-zA-Z]/,'-') %>-sqs-overvi
     title     = "<%=event_name %> Dead Letter Message Age"
     viz       = "query_value"
     autoscale = true
-    precision = 0
 
     request {
       q = "max:aws.sqs.approximate_age_of_oldest_message{queuename:${module.<%=event_name %>.sqs_dead_letter_queue_name}}.as_count()"
-      aggregator = "last"
 
       conditional_format {
         comparator = "<"
-        value = 1
+        value = 1.0
         palette = "white_on_green"
       }
 
       conditional_format {
         comparator = ">"
-        value = 1
+        value = 1.0
         palette = "white_on_yellow"
       }
       conditional_format {
         comparator = ">"
-        value = 3
+        value = 3.0
         palette = "white_on_red"
       }
     }
@@ -99,16 +90,13 @@ resource "datadog_timeboard" "<%= convox_app.gsub(/[^a-zA-Z]/,'-') %>-sqs-overvi
   graph {
     title = "<%=queue_name %> Read / Write"
     viz   = "timeseries"
-    precision = 0
 
     request {
       q = "sum:aws.sqs.number_of_messages_sent{queuename:<%= queue_config["name"] %>}.as_count()"
-      aggregator = "sum"
     }
 
     request {
       q = "sum:aws.sqs.number_of_messages_deleted{queuename:<%= queue_config["name"] %>}.as_count()"
-      aggregator = "sum"
     }
   }
 
@@ -116,26 +104,24 @@ resource "datadog_timeboard" "<%= convox_app.gsub(/[^a-zA-Z]/,'-') %>-sqs-overvi
     title     = "<%=queue_name %> Message Age"
     viz       = "query_value"
     autoscale = true
-    precision = 0
 
     request {
       q = "max:aws.sqs.approximate_age_of_oldest_message{queuename:<%= queue_config["name"] %>}.as_count()"
-      aggregator = "last"
 
       conditional_format {
         comparator = "<"
-        value = 1
+        value = 1.0
         palette = "white_on_green"
       }
 
       conditional_format {
         comparator = ">"
-        value = 1
+        value = 1.0
         palette = "white_on_yellow"
       }
       conditional_format {
         comparator = ">"
-        value = 3
+        value = 3.0
         palette = "white_on_red"
       }
     }
