@@ -30,18 +30,18 @@ resource "datadog_timeboard" "<%= convox_app.gsub(/[^a-zA-Z]/,'-') %>-sqs-overvi
 
       conditional_format {
         comparator = "<"
-        value = 300
+        value = 300.0
         palette = "white_on_green"
       }
 
       conditional_format {
         comparator = ">"
-        value = 299
+        value = 299.0
         palette = "white_on_yellow"
       }
       conditional_format {
         comparator = ">"
-        value = 600
+        value = 600.0
         palette = "white_on_red"
       }
     }
@@ -67,18 +67,18 @@ resource "datadog_timeboard" "<%= convox_app.gsub(/[^a-zA-Z]/,'-') %>-sqs-overvi
 
       conditional_format {
         comparator = "<"
-        value = 1
+        value = 1.0
         palette = "white_on_green"
       }
 
       conditional_format {
         comparator = ">"
-        value = 1
+        value = 1.0
         palette = "white_on_yellow"
       }
       conditional_format {
         comparator = ">"
-        value = 3
+        value = 3.0
         palette = "white_on_red"
       }
     }
@@ -110,18 +110,18 @@ resource "datadog_timeboard" "<%= convox_app.gsub(/[^a-zA-Z]/,'-') %>-sqs-overvi
 
       conditional_format {
         comparator = "<"
-        value = 1
+        value = 1.0
         palette = "white_on_green"
       }
 
       conditional_format {
         comparator = ">"
-        value = 1
+        value = 1.0
         palette = "white_on_yellow"
       }
       conditional_format {
         comparator = ">"
-        value = 3
+        value = 3.0
         palette = "white_on_red"
       }
     }
