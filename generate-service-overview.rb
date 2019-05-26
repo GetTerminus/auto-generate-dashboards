@@ -32,6 +32,6 @@ convox_app = options[:app_name]
 
 config = YAML.safe_load(File.read(options[:file]))
 
-template = ERB.new(File.read(File.join(__dir__, 'templates', 'services-overview.erb')))
+template = ERB.new(File.read(File.join(__dir__, 'templates', 'services-overview.erb')), nil, '-')
 
 File.write(options[:output_file], template.result(binding))
