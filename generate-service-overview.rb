@@ -7,7 +7,7 @@ require 'erb'
 require 'digest'
 require 'fileutils'
 
-options = {}
+options = {jvm_graphs: false}
 OptionParser.new do |opts|
   opts.banner = 'Usage: generate-service-overview [options]'
 
@@ -15,13 +15,17 @@ OptionParser.new do |opts|
     options[:app_name] = v
   end
 
-	opts.on("-f", "--convox-file CONVOX_FILE_NAME", "Convox file to parse for information (default: docker-compose.convox.yml)") do |v|
-		options[:file] = v
-	end
+  opts.on("-f", "--convox-file CONVOX_FILE_NAME", "Convox file to parse for information (default: docker-compose.convox.yml)") do |v|
+    options[:file] = v
+  end
 
-	opts.on("-o", "--output-file TERRAFORM_TARGET_FILE", "target terraform file") do |v|
-		options[:output_file] = v
-	end
+  opts.on("-o", "--output-file TERRAFORM_TARGET_FILE", "target terraform file") do |v|
+    options[:output_file] = v
+  end
+
+  opts.on("-j", "--jvm-graphs", "Generate JVM graphs for java processes (default: disabled)") do |v|
+    options[:jvm_graphs] = v
+  end
 end.parse!
 
 raise ArgumentError, 'Missing convox app name  (define with -a)' unless options[:app_name]
@@ -29,6 +33,7 @@ raise ArgumentError, "Missing target Terraform file for output  (define with -o)
 
 repo = options[:repo]
 convox_app = options[:app_name]
+add_jvm_graphs = options[:jvm_graphs]
 
 config = YAML.safe_load(File.read(options[:file]))
 

@@ -17,6 +17,42 @@ resource "datadog_timeboard" "<%= convox_app.gsub(/[^a-zA-Z]/,'-') %>-service-ov
       aggregator = "max"
     }
   }
+<%- if add_jvm_graphs -%>
+<%- (service_config["environment"] || []).map {|e| e.match(/^DD_SERVICE_NAME=(.*)$/)}.compact.each do |dd_service_name_match| -%>
+
+  graph {
+    title     = "<%=service_name %> JVM Heap Memory In Use"
+    viz       = "timeseries"
+    precision = 0
+
+    request {
+      q          = "max:jvm.heap_memory{env:<%=convox_app %>,service:<%=dd_service_name_match[1] %>} by {runtime-id}"
+      aggregator = "max"
+    }
+
+    request {
+      q          = "max:jvm.heap_memory_max{env:<%=convox_app %>,service:<%=dd_service_name_match[1] %>} by {runtime-id}"
+      aggregator = "max"
+    }
+  }
+
+  graph {
+    title     = "<%=service_name %> JVM GC Time"
+    viz       = "timeseries"
+    precision = 0
+
+    request {
+      q          = "max:jvm.gc.minor_collection_time{env:<%=convox_app %>,service:<%=dd_service_name_match[1] %>} by {runtime-id}"
+      aggregator = "max"
+    }
+
+    request {
+      q          = "max:jvm.gc.major_collection_time{env:<%=convox_app %>,service:<%=dd_service_name_match[1] %>} by {runtime-id}"
+      aggregator = "max"
+    }
+  }
+<%- end -%>
+<%- end -%>
 <%- if service_config["ports"]&.length.to_i > 0 -%>
 
   graph {
