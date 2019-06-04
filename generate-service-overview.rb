@@ -34,23 +34,17 @@ OptionParser.new do |opts|
   opts.on("-p", "--pagerduty-team PAGERDUTY_TEAM", "Team to notify when monitor is triggered") do |v|
     options[:pagerduty_team] = v
   end 
-
-  opts.on("-r", "--rack-name RACK_NAME", "Convox rack") do |v|
-    options[:rack_name] = v
-  end 
 end.parse!
 
 raise ArgumentError, 'Missing convox app name  (define with -a)' unless options[:app_name]
 raise ArgumentError, "Missing target Terraform file for output  (define with -o)" unless options[:output_file]
 raise ArgumentError, "Invalid value for memory usage monitor opt in  (define with -m, valid values are: true)" unless [true, false].include?(options[:mem_usage_opt_in])
 raise ArgumentError, "Pager Duty team must be present if memory usage opt in monitor is in use  (define with -p)" if options[:pagerduty_team].to_s.empty? && options[:mem_usage_opt_in] == true
-raise ArgumentError, "Rack name must be present if memoryusage opt in monitor is used  (define with -r)" if options[:rack_name].to_s.empty? && options[:mem_usage_opt_in] == true
 
 repo = options[:repo]
 convox_app = options[:app_name]
 pagerduty_team = options[:pagerduty_team]
 mem_usage_opt_in = options[:mem_usage_opt_in]
-rack_name = options[:rack_name]
 
 config = YAML.safe_load(File.read(options[:file]))
 
