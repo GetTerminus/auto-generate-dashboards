@@ -102,7 +102,7 @@ resource "datadog_timeboard" "<%= convox_app.gsub(/[^a-zA-Z]/,'-') %>-service-ov
 
 <% if mem_usage_opt_in == true %>
   <% config["services"].sort_by(&:first).each do |(service_name, service_config)| %>
-    resource "datadog_monitor" "ram-usage-monitor" {
+    resource "datadog_monitor" "<%= convox_app %>-<%= service_name %>-ram-usage-monitor" {
       name             = "${var.convox_created_resource_name_prefix}-<%= convox_app %>-<%= service_name %>-ram-usage-monitor"
       type             = "metric alert"
       locked           = true
