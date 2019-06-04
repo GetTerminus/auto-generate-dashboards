@@ -36,7 +36,7 @@ end.parse!
 raise ArgumentError, 'Missing convox app name  (define with -a)' unless options[:app_name]
 raise ArgumentError, "Missing target Terraform file for output  (define with -o)" unless options[:output_file]
 raise ArgumentError, "Invalid value for memory usage monitor opt in  (define with -m, valid values are: true)" unless [true, false].include?(options[:mem_usage_opt_in])
-raise ArgumentError, "Pager Duty team must be present if memory usage opt in monitor is in use  (define with -p)" if options[:pagerduty_team].blank? && options[:mem_usage_opt_in] == true
+raise ArgumentError, "Pager Duty team must be present if memory usage opt in monitor is in use  (define with -p)" if (options[:pagerduty_team].nil? || options[:pagerduty_team].empty?) && options[:mem_usage_opt_in] == true
 
 repo = options[:repo]
 convox_app = options[:app_name]
