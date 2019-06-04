@@ -24,7 +24,11 @@ OptionParser.new do |opts|
 	end
 
   opts.on("-m", "--mem-usage-opt-in OPT_IN", "Opt in to memory usage monitor") do |v|
-    v == 'true' ? options[:mem_usage_opt_in] = true : options[:mem_usage_opt_in] = v
+    if v == 'true'
+      options[:mem_usage_opt_in] = true
+    else
+      options[:mem_usage_opt_in] = v
+    end
   end
 
   opts.on("-p", "--pagerduty-team PAGERDUTY_TEAM", "Team to notify when monitor is triggered") do |v|
