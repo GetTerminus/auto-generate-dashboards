@@ -7,7 +7,7 @@ require 'erb'
 require 'digest'
 require 'fileutils'
 
-options = {mem_usage_opt_in: false, output_file: '/tmp/generated-output.tmp'}
+options = {mem_usage_opt_in: false, output_file: '/tmp/generated-output.tmp', file: '/tmp/input-file.tmp'}
 OptionParser.new do |opts|
   opts.banner = 'Usage: generate-service-overview [options]'
 
