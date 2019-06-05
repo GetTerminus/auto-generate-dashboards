@@ -108,7 +108,7 @@ resource "datadog_timeboard" "<%= convox_app.gsub(/[^a-zA-Z]/,'-') %>-service-ov
       type             = "metric alert"
       locked           = true
       message          = "<%= service_name %> Memory usage >= 98% for the last hour. @<%= pagerduty_team %>"
-      query            = "(min(last_1h):max:docker.mem.rss{task_name:<%= task_name %>} / max:docker.mem.limit{task_name:<%= task_name %>}) >= 0.98"
+      query            = "min(last_1h):max:docker.mem.rss{task_name:<%= task_name %>} / max:docker.mem.limit{task_name:<%= task_name %>} >= 0.98"
     }
   <% end %>
 <% end %>
