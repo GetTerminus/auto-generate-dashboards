@@ -102,12 +102,13 @@ resource "datadog_timeboard" "<%= convox_app.gsub(/[^a-zA-Z]/,'-') %>-service-ov
 
 <% if mem_usage_opt_in == true %>
   <% config["services"].sort_by(&:first).each do |(service_name, service_config)| %>
+    < % task_name = "${var.convox_created_resource_name_prefix}-#{convox_app}-#{service_name}"
     resource "datadog_monitor" "<%= convox_app %>-<%= service_name %>-ram-usage-monitor" {
       name             = "${var.convox_created_resource_name_prefix}-<%= convox_app %>-<%= service_name %>-ram-usage-monitor"
       type             = "metric alert"
       locked           = true
-      message          = "<%= service_name %> Memory usage >= 99% for the last hour. @<%= pagerduty_team %>"
-      query            = "(min(last_1h):max:docker.mem.rss{task_name:${var.convox_created_resource_name_prefix}-<%= convox_app %>-<%= service_name %>} / max:docker.mem.limit{task_name:<%= service_name %>}) >= 0.98"
+      message          = "<%= service_name %> Memory usage >= 98% for the last hour. @<%= pagerduty_team %>"
+      query            = "(min(last_1h):max:docker.mem.rss{task_name:<%= task_name %>} / max:docker.mem.limit{task_name:<%= task_name %>}) >= 0.98"
     }
   <% end %>
 <% end %>
