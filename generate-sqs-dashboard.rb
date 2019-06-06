@@ -5,7 +5,7 @@ require 'optparse'
 require 'erb'
 require 'hcl/checker'
 
-options = {}
+options = {output_file: '/tmp/generated-output.tmp'}
 OptionParser.new do |opts|
   opts.banner = 'Usage: generate-service-overview [options]'
 
