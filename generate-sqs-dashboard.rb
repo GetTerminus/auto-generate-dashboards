@@ -48,6 +48,6 @@ options[:input_files].each do |file|
   end)
 end
 
-template = ERB.new(File.read(File.join(__dir__, 'templates', 'sqs-dashboard.erb')))
+template = ERB.new(File.read(File.join(__dir__, 'templates', 'sqs-dashboard.erb')), nil, '-')
 
 File.write(options[:output_file], template.result(binding))

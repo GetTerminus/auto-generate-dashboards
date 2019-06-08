@@ -5,110 +5,148 @@ resource "datadog_timeboard" "<%= convox_app.gsub(/[^a-zA-Z]/,'-') %>-service-ov
   title       = "<%= convox_app %> - Service Overview"
   description = "<%= convox_app %> - Service Overview"
   read_only   = true
+<%- config["services"].sort_by(&:first).each do |(service_name, service_config)| -%>
 
-<% config["services"].sort_by(&:first).each do |(service_name, service_config)| %>
   graph {
-    title = "<%=service_name %> Memory In Use"
-    viz   = "timeseries"
+    title     = "<%=service_name %> Memory In Use"
+    viz       = "timeseries"
     precision = 0
 
     request {
-      q = "max:docker.mem.in_use{task_name:${var.convox_created_resource_name_prefix}-<%= convox_app %>-<%=service_name %>} by {container_name}*100"
+      q          = "max:docker.mem.in_use{task_name:${var.convox_created_resource_name_prefix}-<%= convox_app %>-<%=service_name %>} by {container_name}*100"
       aggregator = "max"
     }
   }
-<% if service_config["ports"]&.length.to_i > 0 %>
+<%- if add_jvm_graphs -%>
+<%- (service_config["environment"] || []).map {|e| e.match(/^DD_SERVICE_NAME=(.*)$/)}.compact.each do |dd_service_name_match| -%>
+
   graph {
-    title = "<%=service_name %> Host Health"
-    viz   = "timeseries"
+    title     = "<%=service_name %> JVM Heap Memory In Use"
+    viz       = "timeseries"
     precision = 0
 
     request {
-      q = "min:aws.elb.healthy_host_count.minimum{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}"
+      q          = "max:jvm.heap_memory{env:<%=convox_app %>,service:<%=dd_service_name_match[1] %>} by {runtime-id}"
+      aggregator = "max"
+    }
+
+    request {
+      q          = "max:jvm.heap_memory_max{env:<%=convox_app %>,service:<%=dd_service_name_match[1] %>} by {runtime-id}"
+      aggregator = "max"
+    }
+  }
+
+  graph {
+    title     = "<%=service_name %> JVM GC Time"
+    viz       = "timeseries"
+    precision = 0
+
+    request {
+      q          = "max:jvm.gc.minor_collection_time{env:<%=convox_app %>,service:<%=dd_service_name_match[1] %>} by {runtime-id}"
+      aggregator = "max"
+    }
+
+    request {
+      q          = "max:jvm.gc.major_collection_time{env:<%=convox_app %>,service:<%=dd_service_name_match[1] %>} by {runtime-id}"
+      aggregator = "max"
+    }
+  }
+<%- end -%>
+<%- end -%>
+<%- if service_config["ports"]&.length.to_i > 0 -%>
+
+  graph {
+    title     = "<%=service_name %> Host Health"
+    viz       = "timeseries"
+    precision = 0
+
+    request {
+      q          = "min:aws.elb.healthy_host_count.minimum{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}"
       aggregator = "min"
     }
 
     request {
-      q = "max:aws.elb.un_healthy_host_count.maximum{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}"
+      q          = "max:aws.elb.un_healthy_host_count.maximum{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}"
       aggregator = "max"
     }
   }
 
   graph {
-    title = "<%=service_name %> Surge Queue Length"
-    viz   = "timeseries"
+    title     = "<%=service_name %> Surge Queue Length"
+    viz       = "timeseries"
     precision = 0
 
     request {
-      q = "max:aws.elb.surge_queue_length{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}"
+      q          = "max:aws.elb.surge_queue_length{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}"
       aggregator = "min"
     }
   }
-<% if (service_config["labels"] || []).any?{|l| l.match?(/=https?\z/) } %>
+<%- if (service_config["labels"] || []).any?{|l| l.match?(/=https?\z/) } -%>
+
   graph {
-    title = "<%=service_name %> HTTP Response Codes"
-    viz   = "timeseries"
+    title     = "<%=service_name %> HTTP Response Codes"
+    viz       = "timeseries"
     precision = 0
 
     request {
-      q = "sum:aws.elb.httpcode_backend_2xx{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}.as_count()"
+      q          = "sum:aws.elb.httpcode_backend_2xx{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}.as_count()"
       aggregator = "sum"
-      type = "bars"
+      type       = "bars"
     }
 
     request {
-      q = "sum:aws.elb.httpcode_backend_3xx{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}.as_count()"
+      q          = "sum:aws.elb.httpcode_backend_3xx{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}.as_count()"
       aggregator = "sum"
-      type = "bars"
+      type       = "bars"
     }
 
     request {
-      q = "sum:aws.elb.httpcode_backend_4xx{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}.as_count()"
+      q          = "sum:aws.elb.httpcode_backend_4xx{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}.as_count()"
       aggregator = "sum"
-      type = "bars"
+      type       = "bars"
     }
 
     request {
-      q = "sum:aws.elb.httpcode_backend_5xx{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}.as_count()"
+      q          = "sum:aws.elb.httpcode_backend_5xx{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}.as_count()"
       aggregator = "sum"
-      type = "bars"
+      type       = "bars"
     }
   }
 
   graph {
-    title = "<%=service_name %> Latency"
-    viz   = "timeseries"
+    title     = "<%=service_name %> Latency"
+    viz       = "timeseries"
     precision = 0
 
     request {
-      q = "max:aws.elb.latency.maximum{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}.as_count()"
+      q          = "max:aws.elb.latency.maximum{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}.as_count()"
       aggregator = "max"
     }
 
     request {
-      q = "max:aws.elb.latency.p99{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}.as_count()"
+      q          = "max:aws.elb.latency.p99{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}.as_count()"
       aggregator = "max"
     }
 
     request {
-      q = "max:aws.elb.latency.p95{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}.as_count()"
+      q          = "max:aws.elb.latency.p95{host:${lookup(convox_app.<%= convox_app %>.balancers, "<%= service_name %>")}}.as_count()"
       aggregator = "max"
     }
   }
-<% end %>
-<% end %>
-<% end %>
+<%- end -%>
+<%- end -%>
+<%- end -%>
 }
+<%- if mem_usage_opt_in == true -%>
+  <%- config["services"].sort_by(&:first).each do |(service_name, service_config)| -%>
+    <%- task_name = "${var.convox_created_resource_name_prefix}-#{convox_app}-#{service_name}" -%>
 
-<% if mem_usage_opt_in == true %>
-  <% config["services"].sort_by(&:first).each do |(service_name, service_config)| %>
-    <% task_name = "${var.convox_created_resource_name_prefix}-#{convox_app}-#{service_name}" %>
-    resource "datadog_monitor" "<%= convox_app %>-<%= service_name %>-ram-usage-monitor" {
-      name             = "${var.convox_created_resource_name_prefix}-<%= convox_app %>-<%= service_name %>-ram-usage-monitor"
-      type             = "metric alert"
-      locked           = true
-      message          = "<%= service_name %> Memory usage >= 98% for the last hour. @<%= pagerduty_team %>"
-      query            = "min(last_1h):max:docker.mem.rss{task_name:<%= task_name %>} / max:docker.mem.limit{task_name:<%= task_name %>} >= 0.98"
-    }
-  <% end %>
-<% end %>
+resource "datadog_monitor" "<%= convox_app %>-<%= service_name %>-ram-usage-monitor" {
+  name    = "${var.convox_created_resource_name_prefix}-<%= convox_app %>-<%= service_name %>-ram-usage-monitor"
+  type    = "metric alert"
+  locked  = true
+  message = "<%= service_name %> Memory usage >= 98% for the last hour. @<%= pagerduty_team %>"
+  query   = "min(last_1h):max:docker.mem.rss{task_name:<%= task_name %>} / max:docker.mem.limit{task_name:<%= task_name %>} >= 0.98"
+}
+  <%- end -%>
+<%- end -%>
