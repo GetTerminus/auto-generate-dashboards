@@ -1,4 +1,4 @@
-FROM ruby:2.5-alpine
+FROM ruby:2.7.4-alpine
 
 RUN apk --no-cache add git bash
 
